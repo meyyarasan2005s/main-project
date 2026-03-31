@@ -6,3 +6,15 @@ __pycache__/
 instance/
 .env
 *.log
+
+# Large ML/Data files
+*.keras
+*.h5
+*.pkl
+*.pickle
+*.pth
+*.pt
+static/uploads/
+uploads/
+*.csv
+*.xlsx
