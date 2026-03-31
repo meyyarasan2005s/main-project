@@ -1,0 +1,308 @@
+{% extends "base.html" %}
+
+{% block title %}Marketplace - CropCare Assistant{% endblock %}
+
+{% block content %}
+<div class="marketplace-container">
+    <div class="marketplace-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <div>
+            <h1><i class="fas fa-store"></i> Crop Marketplace</h1>
+            <p>Buy and sell crops directly with farmers. No middlemen, better prices.</p>
+        </div>
+        {% if current_user.user_type == 'farmer' %}
+        <div class="marketplace-actions">
+            <a href="{{ url_for('add_listing') }}" class="btn-primary">
+                <i class="fas fa-plus"></i> Sell Your Crop
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="search-section">
+        <form method="GET">
+            <input type="text" name="crop_name" placeholder="Search crops..." value="{{ request.args.get('crop_name', '') }}">
+            <input type="text" name="location" placeholder="Location" value="{{ request.args.get('location', '') }}">
+            <button type="submit" class="btn-primary">
+                <i class="fas fa-search"></i> Search
+            </button>
+            <a href="{{ url_for('marketplace') }}" class="btn-secondary">
+                <i class="fas fa-redo"></i> Clear
+            </a>
+        </form>
+    </div>
+    
+    {% if listings %}
+    <div class="listings-grid">
+        {% for item in listings %}
+        <div class="listing-card">
+            {% if item.image_url %}
+            <img src="{{ url_for('static', filename='uploads/' + item.image_url) }}" alt="{{ item.crop_name }}">
+            {% else %}
+            <div class="no-image" style="height:200px; background:#f5f5f5; display:flex; align-items:center; justify-content:center;">
+                <i class="fas fa-seedling" style="font-size:3rem; color:#ccc;"></i>
+            </div>
+            {% endif %}
+            
+            <div class="listing-info">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                    <h3>{{ item.crop_name }}</h3>
+                    <span class="status-badge status-{{ item.status }}" style="background: {% if item.status == 'available' %}#4CAF50{% elif item.status == 'reserved' %}#FF9800{% else %}#f44336{% endif %}; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem;">
+                        {{ item.status|title }}
+                    </span>
+                </div>
+                
+                <p class="price" style="font-size: 1.8rem; font-weight: bold; color: #2e7d32; margin: 10px 0;">₹{{ item.price_per_unit }}/{{ item.unit }}</p>
+                <p class="quantity"><i class="fas fa-weight"></i> <strong>Available Quantity:</strong> {{ item.quantity }} {{ item.unit }}</p>
+                <p class="total-value" style="color: #ff9800; font-weight: bold;"><i class="fas fa-calculator"></i> Total Value: ₹{{ (item.quantity * item.price_per_unit)|round(2) }}</p>
+                <p class="location"><i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> {{ item.location or 'Location not specified' }}</p>
+                <p class="seller"><i class="fas fa-user"></i> <strong>Seller:</strong> {{ item.seller_name }}</p>
+                
+                {% if item.description %}
+                <p class="description" style="margin: 1rem 0; padding: 1rem; background: #f8f9fa; border-radius: 5px; font-size: 0.9rem;">
+                    {{ item.description|truncate(150) }}
+                </p>
+                {% endif %}
+                
+                <div class="listing-actions" style="margin-top: 1rem;">
+                    {% if current_user.user_type == 'farmer' and current_user.id == item.seller_id %}
+                        <!-- Farmer sees edit and delete buttons for their own listings -->
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn-primary" style="flex: 1; background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); padding: 10px; border: none; border-radius: 8px; color: white; cursor: pointer;" 
+                                    onclick="openEditModal({{ item.id }}, '{{ item.crop_name }}', {{ item.quantity }}, '{{ item.unit }}', {{ item.price_per_unit }}, '{{ item.location }}', `{{ item.description }}`)">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn-danger" style="flex: 1; background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%); padding: 10px; border: none; border-radius: 8px; color: white; cursor: pointer;" 
+                                    onclick="deleteListing({{ item.id }}, '{{ item.crop_name }}')">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                        <button class="btn-secondary" style="width: 100%; margin-top: 8px; background: #ff9800; color: white; border: none; padding: 8px; border-radius: 8px; cursor: pointer;" 
+                                onclick="markAsSold({{ item.id }}, '{{ item.crop_name }}')">
+                            <i class="fas fa-check-circle"></i> Mark as Sold
+                        </button>
+                    {% elif current_user.user_type == 'buyer' and current_user.id != item.seller_id %}
+                        <!-- Buyers see contact button with seller details -->
+                        <button class="btn-primary" style="width: 100%; background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); padding: 12px; border: none; border-radius: 8px; color: white; cursor: pointer;" 
+                                onclick="showSellerContact('{{ item.seller_name }}', '{{ item.seller_mobile }}', '{{ item.seller_email }}', '{{ item.location }}', '{{ item.crop_name }}', {{ item.quantity }}, {{ item.price_per_unit }})">
+                            <i class="fas fa-phone-alt"></i> View Seller Contact
+                        </button>
+                    {% elif current_user.user_type == 'farmer' and current_user.id != item.seller_id %}
+                        <!-- Other farmers see this -->
+                        <button class="btn-secondary" style="width: 100%; padding: 12px; border: 2px solid #2e7d32; border-radius: 8px; background: white; color: #2e7d32;" disabled>
+                            <i class="fas fa-user-farmer"></i> Farmer's Listing
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="market-stats" style="display: flex; gap: 2rem; margin: 2rem 0; justify-content: center; flex-wrap: wrap;">
+        <div class="stat-item" style="background: white; padding: 1rem 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center;">
+            <span style="display: block; color: #666; font-size: 0.9rem;">Total Listings:</span>
+            <span style="display: block; font-size: 1.5rem; font-weight: bold; color: #4CAF50;">{{ listings|length }}</span>
+        </div>
+        <div class="stat-item" style="background: white; padding: 1rem 2rem; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center;">
+            <span style="display: block; color: #666; font-size: 0.9rem;">Unique Farmers:</span>
+            <span style="display: block; font-size: 1.5rem; font-weight: bold; color: #4CAF50;">
+                {% set unique_sellers = [] %}
+                {% for item in listings %}
+                    {% if item.seller_id not in unique_sellers %}
+                        {% set _ = unique_sellers.append(item.seller_id) %}
+                    {% endif %}
+                {% endfor %}
+                {{ unique_sellers|length }}
+            </span>
+        </div>
+    </div>
+    
+    {% else %}
+    <div class="no-listings" style="text-align: center; padding: 60px 20px;">
+        <i class="fas fa-store-slash" style="font-size: 4rem; color: #ddd; margin-bottom: 20px;"></i>
+        <h3>No Listings Found</h3>
+        <p>Try adjusting your search criteria or be the first to list your crop!</p>
+        {% if current_user.user_type == 'farmer' %}
+        <a href="{{ url_for('add_listing') }}" class="btn-primary" style="margin-top: 1rem; display: inline-block;">
+            <i class="fas fa-plus"></i> Sell Your Crop Now
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    <div class="how-it-works" style="margin-top: 4rem; padding: 2rem; background: #f8f9fa; border-radius: 10px;">
+        <h2 style="text-align: center; margin-bottom: 2rem;"><i class="fas fa-question-circle"></i> How It Works</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem;">
+            <div style="text-align: center;">
+                <div style="width: 60px; height: 60px; background: #4CAF50; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-weight: bold; font-size: 1.5rem;">1</div>
+                <h4>Find Crops</h4>
+                <p>Browse available crops from farmers</p>
+            </div>
+            <div style="text-align: center;">
+                <div style="width: 60px; height: 60px; background: #4CAF50; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-weight: bold; font-size: 1.5rem;">2</div>
+                <h4>View Contact</h4>
+                <p>Click to see seller's phone and email</p>
+            </div>
+            <div style="text-align: center;">
+                <div style="width: 60px; height: 60px; background: #4CAF50; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-weight: bold; font-size: 1.5rem;">3</div>
+                <h4>Contact Directly</h4>
+                <p>Call or email the seller</p>
+            </div>
+            <div style="text-align: center;">
+                <div style="width: 60px; height: 60px; background: #4CAF50; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-weight: bold; font-size: 1.5rem;">4</div>
+                <h4>Complete Deal</h4>
+                <p>Arrange pickup/delivery</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scrollable Edit Listing Modal -->
+<div id="editModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center; overflow-y: auto;">
+    <div style="background: white; border-radius: 15px; max-width: 500px; width: 90%; margin: 30px auto; padding: 25px; max-height: 90vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #4CAF50; padding-bottom: 10px;">
+            <h2 style="color: #2e7d32; margin: 0;"><i class="fas fa-edit"></i> Edit Listing</h2>
+            <button onclick="closeEditModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #666;">&times;</button>
+        </div>
+        
+        <form id="editForm" method="POST">
+            <input type="hidden" name="listing_id" id="edit_listing_id">
+            
+            <div class="form-group">
+                <label for="edit_crop_name"><i class="fas fa-leaf"></i> Crop Name</label>
+                <input type="text" id="edit_crop_name" name="crop_name" class="form-control" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label for="edit_quantity"><i class="fas fa-weight"></i> Quantity</label>
+                    <input type="number" id="edit_quantity" name="quantity" step="0.1" class="form-control" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                </div>
+                <div class="form-group">
+                    <label for="edit_unit"><i class="fas fa-balance-scale"></i> Unit</label>
+                    <select id="edit_unit" name="unit" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        <option value="kg">Kilogram (kg)</option>
+                        <option value="quintal">Quintal</option>
+                        <option value="ton">Ton</option>
+                        <option value="bag">Bag</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="edit_price"><i class="fas fa-rupee-sign"></i> Price per Unit (₹)</label>
+                <input type="number" id="edit_price" name="price_per_unit" step="0.01" class="form-control" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            </div>
+            
+            <div class="form-group">
+                <label for="edit_location"><i class="fas fa-map-marker-alt"></i> Location</label>
+                <input type="text" id="edit_location" name="location" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+            </div>
+            
+            <div class="form-group">
+                <label for="edit_description"><i class="fas fa-align-left"></i> Description</label>
+                <textarea id="edit_description" name="description" rows="4" class="form-control" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; resize: vertical;"></textarea>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button type="submit" class="btn-primary" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); color: white; border: none; border-radius: 8px; cursor: pointer;">
+                    <i class="fas fa-save"></i> Update Listing
+                </button>
+                <button type="button" onclick="closeEditModal()" class="btn-secondary" style="flex: 1; padding: 12px; background: #f5f5f5; border: 1px solid #ddd; border-radius: 8px; cursor: pointer;">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openEditModal(id, cropName, quantity, unit, price, location, description) {
+    document.getElementById('edit_listing_id').value = id;
+    document.getElementById('edit_crop_name').value = cropName;
+    document.getElementById('edit_quantity').value = quantity;
+    document.getElementById('edit_unit').value = unit;
+    document.getElementById('edit_price').value = price;
+    document.getElementById('edit_location').value = location || '';
+    document.getElementById('edit_description').value = description || '';
+    document.getElementById('editModal').style.display = 'flex';
+}
+
+function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
+
+function deleteListing(id, cropName) {
+    if(confirm(`Are you sure you want to delete the listing for ${cropName}?`)) {
+        fetch(`/delete-listing/${id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(response => response.json()).then(data => {
+            if(data.success) {
+                alert('Listing deleted successfully!');
+                location.reload();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        });
+    }
+}
+
+function markAsSold(id, cropName) {
+    if(confirm(`Mark "${cropName}" as sold? This will remove it from marketplace.`)) {
+        fetch(`/mark-sold/${id}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        }).then(response => response.json()).then(data => {
+            if(data.success) {
+                alert('Listing marked as sold!');
+                location.reload();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        });
+    }
+}
+
+function showSellerContact(sellerName, mobile, email, location, cropName, quantity, price) {
+    const totalValue = quantity * price;
+    alert(`📞 Seller Contact Details\n\n👤 Name: ${sellerName}\n🌾 Crop: ${cropName}\n📦 Quantity: ${quantity} kg\n💰 Price: ₹${price}/kg\n💵 Total Value: ₹${totalValue.toFixed(2)}\n📍 Location: ${location || 'Not specified'}\n\n📱 Mobile: ${mobile}\n📧 Email: ${email}\n\nPlease contact the seller directly to discuss and arrange delivery.`);
+}
+
+document.getElementById('editForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const listingId = document.getElementById('edit_listing_id').value;
+    
+    fetch(`/update-listing/${listingId}`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.success) {
+            alert('Listing updated successfully!');
+            closeEditModal();
+            location.reload();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        alert('Error updating listing: ' + error);
+    });
+});
+
+// Close modal when clicking outside
+document.getElementById('editModal').addEventListener('click', function(e) {
+    if(e.target === this) {
+        closeEditModal();
+    }
+});
+</script>
+{% endblock %}

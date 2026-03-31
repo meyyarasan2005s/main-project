@@ -1,0 +1,273 @@
+{% extends "base.html" %}
+
+{% block title %}Crop Guide - CropCare Assistant{% endblock %}
+
+{% block content %}
+<div class="guide-container">
+    <h1><i class="fas fa-book"></i> Crop Planting Guide</h1>
+    <p class="subtitle">Get season-based and soil-based crop recommendations for optimal farming</p>
+    
+    <div class="guide-selection">
+        <h2><i class="fas fa-calendar-alt"></i> Select Season</h2>
+        <div class="season-buttons">
+            <a href="{{ url_for('crop_guide', season='winter') }}" 
+               class="season-btn {% if season == 'winter' %}active{% endif %}">
+                <i class="fas fa-snowflake"></i> Winter
+            </a>
+            <a href="{{ url_for('crop_guide', season='summer') }}" 
+               class="season-btn {% if season == 'summer' %}active{% endif %}">
+                <i class="fas fa-sun"></i> Summer
+            </a>
+            <a href="{{ url_for('crop_guide', season='rainy') }}" 
+               class="season-btn {% if season == 'rainy' %}active{% endif %}">
+                <i class="fas fa-cloud-rain"></i> Rainy
+            </a>
+            <a href="{{ url_for('crop_guide', season='spring') }}" 
+               class="season-btn {% if season == 'spring' %}active{% endif %}">
+                <i class="fas fa-seedling"></i> Spring
+            </a>
+        </div>
+        
+        <h2 style="margin-top: 2rem;"><i class="fas fa-mountain"></i> Select Soil Type</h2>
+        <div class="soil-buttons">
+            <a href="{{ url_for('crop_guide', season=season, soil_type='sandy') }}" 
+               class="soil-btn {% if soil_type == 'sandy' %}active{% endif %}">
+                Sandy Soil
+            </a>
+            <a href="{{ url_for('crop_guide', season=season, soil_type='clay') }}" 
+               class="soil-btn {% if soil_type == 'clay' %}active{% endif %}">
+                Clay Soil
+            </a>
+            <a href="{{ url_for('crop_guide', season=season, soil_type='loamy') }}" 
+               class="soil-btn {% if soil_type == 'loamy' %}active{% endif %}">
+                Loamy Soil
+            </a>
+            <a href="{{ url_for('crop_guide', season=season, soil_type='silt') }}" 
+               class="soil-btn {% if soil_type == 'silt' %}active{% endif %}">
+                Silt Soil
+            </a>
+        </div>
+    </div>
+    
+    <div class="current-info" style="background: #e8f5e9; padding: 1.5rem; border-radius: 10px; margin: 2rem 0;">
+        <h3><i class="fas fa-info-circle"></i> Current Selection</h3>
+        <p>Season: <strong>{{ season|title }}</strong> | Soil Type: <strong>{{ soil_type|title }}</strong></p>
+        <p>Current Month: <strong>{{ current_month }}</strong></p>
+        {% if best_crops %}
+        <p style="margin-top: 0.5rem;">Best crops for {{ current_month }}: 
+            {% for crop_item in best_crops %}
+            <strong>{{ crop_item.crop }}</strong>{% if not loop.last %}, {% endif %}
+            {% endfor %}
+        </p>
+        {% endif %}
+    </div>
+    
+    <div class="crops-section">
+        <h2><i class="fas fa-calendar-check"></i> {{ season|title }} Season Crops</h2>
+        {% if season_crops %}
+        <div class="crops-grid">
+            {% for crop_item in season_crops %}
+            <div class="crop-card">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                    <h4>{{ crop_item.crop }}</h4>
+                    {% if crop_item in best_crops %}
+                    <span style="background: #FF9800; color: white; padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.8rem;">
+                        <i class="fas fa-star"></i> Best for {{ current_month }}
+                    </span>
+                    {% endif %}
+                </div>
+                <p><i class="fas fa-calendar"></i> <strong>Planting Months:</strong> {{ crop_item.months|join(', ') }}</p>
+                <p><i class="fas fa-thermometer-half"></i> <strong>Temperature:</strong> {{ crop_item.temp_range }}</p>
+                {% if crop_item.water_needs %}
+                <p><i class="fas fa-tint"></i> <strong>Water Needs:</strong> {{ crop_item.water_needs }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="padding: 2rem; text-align: center; color: #666; background: #f5f5f5; border-radius: 10px;">
+            No crop data available for {{ season }} season.
+        </p>
+        {% endif %}
+    </div>
+    
+    <div class="crops-section">
+        <h2><i class="fas fa-seedling"></i> {{ soil_type|title }} Soil Crops</h2>
+        {% if soil_crops %}
+        <div class="crops-grid">
+            {% for crop_item in soil_crops %}
+            <div class="crop-card">
+                <h4>{{ crop_item.crop }}</h4>
+                <p><i class="fas fa-flask"></i> <strong>pH Range:</strong> {{ crop_item.ph_range }}</p>
+                {% if crop_item.water_needs %}
+                <p><i class="fas fa-tint"></i> <strong>Water Needs:</strong> {{ crop_item.water_needs }}</p>
+                {% endif %}
+                
+                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #eee;">
+                    <h5 style="color: #666; margin-bottom: 0.5rem;"><i class="fas fa-lightbulb"></i> Growing Tips:</h5>
+                    <ul style="font-size: 0.9rem; color: #555;">
+                        {% if soil_type == 'sandy' %}
+                        <li>Add organic matter to improve water retention</li>
+                        <li>Frequent light watering needed</li>
+                        <li>Use mulch to prevent soil erosion</li>
+                        {% elif soil_type == 'clay' %}
+                        <li>Improve drainage with compost</li>
+                        <li>Water deeply but less frequently</li>
+                        <li>Avoid working soil when wet</li>
+                        {% elif soil_type == 'loamy' %}
+                        <li>Ideal soil - maintain with regular composting</li>
+                        <li>Moderate watering schedule</li>
+                        <li>Rotate crops annually</li>
+                        {% elif soil_type == 'silt' %}
+                        <li>Add organic matter to prevent compaction</li>
+                        <li>Good water retention - avoid overwatering</li>
+                        <li>Light cultivation recommended</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p style="padding: 2rem; text-align: center; color: #666; background: #f5f5f5; border-radius: 10px;">
+            No crop data available for {{ soil_type }} soil.
+        </p>
+        {% endif %}
+    </div>
+    
+    <div class="calendar-section" style="margin: 3rem 0; padding: 2rem; background: #f8f9fa; border-radius: 10px;">
+        <h2><i class="fas fa-calendar-alt"></i> Annual Planting Calendar</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+            <div style="background: white; padding: 1rem; border-radius: 8px; border-left: 4px solid #4CAF50;">
+                <h4>Jan-Feb</h4>
+                <p>Winter Crops: Wheat, Barley, Mustard</p>
+            </div>
+            <div style="background: white; padding: 1rem; border-radius: 8px; border-left: 4px solid #2196F3;">
+                <h4>Mar-Apr</h4>
+                <p>Summer Crops: Maize, Cotton, Vegetables</p>
+            </div>
+            <div style="background: white; padding: 1rem; border-radius: 8px; border-left: 4px solid #FF9800;">
+                <h4>May-Jun</h4>
+                <p>Pre-Monsoon: Rice nursery, Groundnut</p>
+            </div>
+            <div style="background: white; padding: 1rem; border-radius: 8px; border-left: 4px solid #9C27B0;">
+                <h4>Jul-Aug</h4>
+                <p>Rainy Season: Rice, Sugarcane</p>
+            </div>
+            <div style="background: white; padding: 1rem; border-radius: 8px; border-left: 4px solid #4CAF50;">
+                <h4>Sep-Oct</h4>
+                <p>Autumn: Wheat, Mustard, Peas</p>
+            </div>
+            <div style="background: white; padding: 1rem; border-radius: 8px; border-left: 4px solid #2196F3;">
+                <h4>Nov-Dec</h4>
+                <p>Winter: Wheat, Barley, Vegetables</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="tips-section" style="margin: 3rem 0; padding: 2rem; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6d9 100%); border-radius: 10px;">
+        <h2><i class="fas fa-lightbulb"></i> General Farming Tips</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+            <div style="background: white; padding: 1.5rem; border-radius: 10px;">
+                <h4><i class="fas fa-water"></i> Irrigation Tips</h4>
+                <ul style="margin-top: 0.5rem; padding-left: 1.2rem;">
+                    <li>Water early morning or late evening</li>
+                    <li>Use drip irrigation for water conservation</li>
+                    <li>Mulch soil to retain moisture</li>
+                    <li>Avoid overhead watering</li>
+                </ul>
+            </div>
+            <div style="background: white; padding: 1.5rem; border-radius: 10px;">
+                <h4><i class="fas fa-prescription-bottle-alt"></i> Fertilization</h4>
+                <ul style="margin-top: 0.5rem; padding-left: 1.2rem;">
+                    <li>Test soil before applying fertilizers</li>
+                    <li>Use organic compost regularly</li>
+                    <li>Balance NPK ratios for specific crops</li>
+                    <li>Apply fertilizers during active growth</li>
+                </ul>
+            </div>
+            <div style="background: white; padding: 1.5rem; border-radius: 10px;">
+                <h4><i class="fas fa-bug"></i> Pest Control</h4>
+                <ul style="margin-top: 0.5rem; padding-left: 1.2rem;">
+                    <li>Use integrated pest management</li>
+                    <li>Plant pest-repelling companion crops</li>
+                    <li>Regular monitoring is essential</li>
+                    <li>Encourage beneficial insects</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.subtitle {
+    color: #666;
+    margin-bottom: 2rem;
+}
+.guide-container {
+    background: white;
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+}
+.guide-selection {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin: 1.5rem 0;
+}
+.season-buttons, .soil-buttons {
+    display: flex;
+    gap: 1rem;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+}
+.season-btn, .soil-btn {
+    padding: 0.75rem 1.5rem;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #333;
+    transition: all 0.3s ease;
+}
+.season-btn.active, .soil-btn.active {
+    background: #2e7d32;
+    color: white;
+    border-color: #2e7d32;
+}
+.season-btn:hover, .soil-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.crops-section {
+    margin: 2rem 0;
+}
+.crops-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+.crop-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    border-left: 4px solid #2e7d32;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease;
+}
+.crop-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+.crop-card h4 {
+    color: #1a472a;
+    margin-bottom: 0.5rem;
+}
+.crop-card p {
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+}
+</style>
+{% endblock %}

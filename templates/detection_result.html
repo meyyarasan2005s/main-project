@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Detection Result - CropCare Assistant{% endblock %}
+
+{% block content %}
+<div class="result-container">
+    <div class="result-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h1><i class="fas fa-clipboard-check"></i> Analysis Result</h1>
+        <a href="{{ url_for('disease_detection') }}" class="btn-secondary">
+            <i class="fas fa-redo"></i> Analyze Another Image
+        </a>
+    </div>
+    
+    <div class="result-content">
+        <div class="image-section">
+            <img src="{{ image_url }}" alt="Uploaded crop image" style="width:100%; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+        </div>
+        
+        <div class="result-section">
+            <div class="result-details" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 25px; border-radius: 15px; margin-bottom: 25px;">
+                <h2 style="color: #2e7d32; margin-bottom: 20px;"><i class="fas fa-info-circle"></i> Detection Details</h2>
+                <div class="detail-item" style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #dee2e6;">
+                    <span style="font-weight: 600;">Crop Type:</span>
+                    <span><strong>{{ crop_type }}</strong></span>
+                </div>
+                <div class="detail-item" style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #dee2e6;">
+                    <span style="font-weight: 600;">Location:</span>
+                    <span>{{ location or 'Not specified' }}</span>
+                </div>
+                <div class="detail-item" style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #dee2e6;">
+                    <span style="font-weight: 600;">Detected Disease:</span>
+                    <span style="color: #dc3545; font-weight: bold;">{{ result.disease_name }}</span>
+                </div>
+                <div class="detail-item" style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #dee2e6;">
+                    <span style="font-weight: 600;">Confidence Level:</span>
+                    <span class="confidence {% if result.confidence > 0.8 %}confidence-high{% elif result.confidence > 0.6 %}confidence-medium{% else %}confidence-low{% endif %}" 
+                          style="font-weight: bold; {% if result.confidence > 0.8 %}color: #28a745;{% elif result.confidence > 0.6 %}color: #ffc107;{% else %}color: #dc3545;{% endif %}">
+                        {{ (result.confidence * 100)|round(1) }}%
+                    </span>
+                </div>
+                <div class="detail-item" style="display: flex; justify-content: space-between; padding: 12px 0;">
+                    <span style="font-weight: 600;">Detection Time:</span>
+                    <span>{{ detection_time }}</span>
+                </div>
+            </div>
+            
+            <!-- Symptoms Section -->
+            <div style="margin: 2rem 0;">
+                <h2 style="color: #2e7d32; margin-bottom: 15px;"><i class="fas fa-exclamation-triangle"></i> Symptoms</h2>
+                <ul class="symptoms" style="list-style: none; padding: 0;">
+                    {% for symptom in result.remedy_info.symptoms %}
+                    <li style="padding: 12px 15px; background: #f8f9fa; margin-bottom: 8px; border-radius: 10px; border-left: 4px solid #ffc107;">{{ symptom }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <!-- Organic Treatments Section -->
+            <div style="margin: 2rem 0;">
+                <h2 style="color: #2e7d32; margin-bottom: 15px;"><i class="fas fa-leaf"></i> Organic Treatments</h2>
+                <ul class="treatments" style="list-style: none; padding: 0;">
+                    {% for treatment in result.remedy_info.organic_treatments %}
+                    <li style="padding: 12px 15px; background: #e8f5e9; margin-bottom: 8px; border-radius: 10px; border-left: 4px solid #4caf50;">{{ treatment }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <!-- Chemical Treatments Section -->
+            <div style="margin: 2rem 0;">
+                <h2 style="color: #2e7d32; margin-bottom: 15px;"><i class="fas fa-flask"></i> Chemical Treatments</h2>
+                <ul class="treatments" style="list-style: none; padding: 0;">
+                    {% for treatment in result.remedy_info.chemical_treatments %}
+                    <li style="padding: 12px 15px; background: #fff3e0; margin-bottom: 8px; border-radius: 10px; border-left: 4px solid #ff9800;">{{ treatment }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <!-- Prevention Tips Section -->
+            <div style="margin: 2rem 0;">
+                <h2 style="color: #2e7d32; margin-bottom: 15px;"><i class="fas fa-shield-alt"></i> Prevention Tips</h2>
+                <ul class="prevention" style="list-style: none; padding: 0;">
+                    {% for tip in result.remedy_info.prevention %}
+                    <li style="padding: 12px 15px; background: #e3f2fd; margin-bottom: 8px; border-radius: 10px; border-left: 4px solid #2196f3;">{{ tip }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <div class="action-buttons" style="display: flex; gap: 15px; margin-top: 30px;">
+                <a href="{{ url_for('disease_detection') }}" class="btn-primary" style="padding: 12px 25px; background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%); color: white; text-decoration: none; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-redo"></i> Analyze Another
+                </a>
+                <a href="{{ url_for('dashboard') }}" class="btn-secondary" style="padding: 12px 25px; background: white; color: #2e7d32; border: 2px solid #2e7d32; text-decoration: none; border-radius: 8px; display: inline-flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
+                <button onclick="window.print()" class="btn-secondary" style="padding: 12px 25px; background: white; color: #2e7d32; border: 2px solid #2e7d32; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-print"></i> Print Report
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.confidence-high {
+    color: #28a745;
+    font-weight: bold;
+}
+.confidence-medium {
+    color: #ffc107;
+    font-weight: bold;
+}
+.confidence-low {
+    color: #dc3545;
+    font-weight: bold;
+}
+</style>
+{% endblock %}

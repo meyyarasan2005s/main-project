@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Disease Detection{% endblock %}
+
+{% block content %}
+<div class="detection-container">
+    <h1><i class="fas fa-search"></i> Crop Disease Detection</h1>
+    <p>Upload a photo of your crop leaves to identify diseases using our VGG16 AI model.</p>
+    
+    <form method="POST" enctype="multipart/form-data">
+        <div class="upload-area">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <h3>Click or Drag & Drop to Upload</h3>
+            <p>Supported: JPG, PNG, JPEG (Max 16MB)</p>
+            <input type="file" name="file" accept="image/*" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="crop_type"><i class="fas fa-leaf"></i> Crop Type</label>
+            <select name="crop_type" id="crop_type" required>
+                <option value="">Select Crop</option>
+                <option value="Apple">Apple</option>
+                <option value="Blueberry">Blueberry</option>
+                <option value="Cherry">Cherry</option>
+                <option value="Corn">Corn</option>
+                <option value="Grape">Grape</option>
+                <option value="Orange">Orange</option>
+                <option value="Peach">Peach</option>
+                <option value="Pepper">Pepper</option>
+                <option value="Potato">Potato</option>
+                <option value="Raspberry">Raspberry</option>
+                <option value="Soybean">Soybean</option>
+                <option value="Squash">Squash</option>
+                <option value="Strawberry">Strawberry</option>
+                <option value="Tomato">Tomato</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="location"><i class="fas fa-map-marker-alt"></i> Location (Optional)</label>
+            <input type="text" name="location" placeholder="City, State" value="{{ current_user.location or '' }}">
+        </div>
+        
+        <button type="submit" class="btn-primary btn-large">
+            <i class="fas fa-search"></i> Analyze with VGG16
+        </button>
+    </form>
+    
+    <div style="margin-top: 2rem; padding: 1.5rem; background: #e3f2fd; border-radius: 10px;">
+        <h3><i class="fas fa-info-circle"></i> About the Model</h3>
+        <p><strong>Model:</strong> VGG16 trained on 38 disease classes</p>
+        <p><strong>Supported Crops:</strong> 14 major crops</p>
+        <p><strong>Accuracy:</strong> ~95% on validation data</p>
+    </div>
+</div>
+{% endblock %}

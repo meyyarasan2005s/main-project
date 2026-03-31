@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+
+{% block title %}Add Listing - CropCare Assistant{% endblock %}
+
+{% block content %}
+<div class="add-listing-container">
+    <h1><i class="fas fa-plus"></i> Add Crop Listing</h1>
+    <p class="subtitle">Sell your crops directly to buyers on our marketplace</p>
+    
+    <form method="POST" enctype="multipart/form-data" id="listingForm">
+        <div class="form-group">
+            <label for="crop_name"><i class="fas fa-leaf"></i> Crop Name</label>
+            <input type="text" id="crop_name" name="crop_name" required 
+                   placeholder="e.g., Tomato, Potato, Wheat">
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+            <div class="form-group">
+                <label for="quantity">Quantity</label>
+                <input type="number" id="quantity" name="quantity" step="0.1" min="0" required 
+                       placeholder="e.g., 100" value="0">
+            </div>
+            
+            <div class="form-group">
+                <label for="unit">Unit</label>
+                <select id="unit" name="unit">
+                    <option value="kg">Kilogram (kg)</option>
+                    <option value="quintal">Quintal</option>
+                    <option value="ton">Ton</option>
+                    <option value="bag">Bag</option>
+                    <option value="piece">Piece</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="price_per_unit"><i class="fas fa-rupee-sign"></i> Price per Unit (₹)</label>
+            <input type="number" id="price_per_unit" name="price_per_unit" step="0.01" min="0" required 
+                   placeholder="e.g., 25.50" value="0">
+        </div>
+        
+        <div class="form-group">
+            <label for="location"><i class="fas fa-map-marker-alt"></i> Location</label>
+            <input type="text" id="location" name="location" 
+                   value="{{ current_user.location or '' }}"
+                   placeholder="Where is the crop available?">
+        </div>
+        
+        <div class="form-group">
+            <label for="description"><i class="fas fa-align-left"></i> Description (Optional)</label>
+            <textarea id="description" name="description" rows="4" 
+                      placeholder="Describe your crop quality, harvesting time, delivery options..."></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="image"><i class="fas fa-camera"></i> Crop Image (Optional)</label>
+            <input type="file" id="image" name="image" accept="image/*">
+            <small style="color: #666; font-size: 0.9rem;">Upload a clear photo of your crop for better visibility</small>
+        </div>
+        
+        <div id="totalDisplay" style="background: linear-gradient(135deg, #e8f5e9 0%, #c8e6d9 100%); padding: 1.5rem; border-radius: 10px; margin: 1.5rem 0; text-align: center;">
+            <div style="font-size: 0.9rem; color: #2e7d32; margin-bottom: 0.5rem;">Total Value</div>
+            <div style="font-size: 2rem; font-weight: bold; color: #1b5e20;">₹ <span id="totalAmount">0.00</span></div>
+            <div style="font-size: 0.8rem; color: #2e7d32; margin-top: 0.5rem;">Quantity × Price per Unit</div>
+        </div>
+        
+        <button type="submit" class="btn-primary" style="width: 100%;">
+            <i class="fas fa-check-circle"></i> Add Listing to Marketplace
+        </button>
+    </form>
+</div>
+
+<style>
+.subtitle {
+    color: #666;
+    margin-bottom: 2rem;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get form elements
+    const quantityInput = document.getElementById('quantity');
+    const priceInput = document.getElementById('price_per_unit');
+    const totalAmountSpan = document.getElementById('totalAmount');
+    
+    // Function to calculate total
+    function calculateTotal() {
+        let quantity = parseFloat(quantityInput.value) || 0;
+        let price = parseFloat(priceInput.value) || 0;
+        let total = quantity * price;
+        
+        // Update display
+        totalAmountSpan.textContent = total.toFixed(2);
+        
+        // Add color coding based on total value
+        if (total === 0) {
+            totalAmountSpan.style.color = '#666';
+        } else if (total < 1000) {
+            totalAmountSpan.style.color = '#4caf50';
+        } else if (total < 5000) {
+            totalAmountSpan.style.color = '#ff9800';
+        } else {
+            totalAmountSpan.style.color = '#f44336';
+        }
+    }
+    
+    // Add event listeners
+    quantityInput.addEventListener('input', calculateTotal);
+    priceInput.addEventListener('input', calculateTotal);
+    
+    // Calculate on page load
+    calculateTotal();
+    
+    // Form validation before submit
+    const form = document.getElementById('listingForm');
+    form.addEventListener('submit', function(e) {
+        const quantity = parseFloat(quantityInput.value) || 0;
+        const price = parseFloat(priceInput.value) || 0;
+        
+        if (quantity <= 0) {
+            e.preventDefault();
+            alert('Please enter a valid quantity greater than 0');
+            quantityInput.focus();
+            return false;
+        }
+        
+        if (price <= 0) {
+            e.preventDefault();
+            alert('Please enter a valid price greater than 0');
+            priceInput.focus();
+            return false;
+        }
+        
+        const cropName = document.getElementById('crop_name').value;
+        if (!cropName.trim()) {
+            e.preventDefault();
+            alert('Please enter a crop name');
+            document.getElementById('crop_name').focus();
+            return false;
+        }
+        
+        // Show confirmation
+        const total = quantity * price;
+        const confirmMsg = `Confirm listing:\n\nCrop: ${cropName}\nQuantity: ${quantity} ${document.getElementById('unit').value}\nPrice: ₹${price}/unit\nTotal Value: ₹${total.toFixed(2)}\n\nClick OK to list this crop.`;
+        
+        if (!confirm(confirmMsg)) {
+            e.preventDefault();
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,1118 @@
+import json
+
+# These are the EXACT disease names from your model
+model_diseases = [
+    "Apple___Apple_scab",
+    "Apple___Black_rot",
+    "Apple___Cedar_apple_rust",
+    "Apple___healthy",
+    "Blueberry___healthy",
+    "Cherry_(including_sour)___Powdery_mildew",
+    "Cherry_(including_sour)___healthy",
+    "Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot",
+    "Corn_(maize)___Common_rust_",
+    "Corn_(maize)___Northern_Leaf_Blight",
+    "Corn_(maize)___healthy",
+    "Grape___Black_rot",
+    "Grape___Esca_(Black_Measles)",
+    "Grape___Leaf_blight_(Isariopsis_Leaf_Spot)",
+    "Grape___healthy",
+    "Orange___Haunglongbing_(Citrus_greening)",
+    "Peach___Bacterial_spot",
+    "Peach___healthy",
+    "Pepper,_bell___Bacterial_spot",
+    "Pepper,_bell___healthy",
+    "Potato___Early_blight",
+    "Potato___Late_blight",
+    "Potato___healthy",
+    "Raspberry___healthy",
+    "Soybean___healthy",
+    "Squash___Powdery_mildew",
+    "Strawberry___Leaf_scorch",
+    "Strawberry___healthy",
+    "Tomato___Bacterial_spot",
+    "Tomato___Early_blight",
+    "Tomato___Late_blight",
+    "Tomato___Leaf_Mold",
+    "Tomato___Septoria_leaf_spot",
+    "Tomato___Spider_mites Two-spotted_spider_mite",
+    "Tomato___Target_Spot",
+    "Tomato___Tomato_Yellow_Leaf_Curl_Virus",
+    "Tomato___Tomato_mosaic_virus",
+    "Tomato___healthy"
+]
+
+# Function to extract crop name from disease key
+def extract_crop(disease_key):
+    if "Apple" in disease_key:
+        return "Apple"
+    elif "Blueberry" in disease_key:
+        return "Blueberry"
+    elif "Cherry" in disease_key:
+        return "Cherry"
+    elif "Corn" in disease_key:
+        return "Corn"
+    elif "Grape" in disease_key:
+        return "Grape"
+    elif "Orange" in disease_key:
+        return "Orange"
+    elif "Peach" in disease_key:
+        return "Peach"
+    elif "Pepper" in disease_key:
+        return "Bell Pepper"
+    elif "Potato" in disease_key:
+        return "Potato"
+    elif "Raspberry" in disease_key:
+        return "Raspberry"
+    elif "Soybean" in disease_key:
+        return "Soybean"
+    elif "Squash" in disease_key:
+        return "Squash"
+    elif "Strawberry" in disease_key:
+        return "Strawberry"
+    elif "Tomato" in disease_key:
+        return "Tomato"
+    return "Unknown"
+
+# Complete remedy database with all diseases
+remedy_db = {}
+
+# Apple diseases
+remedy_db["Apple___Apple_scab"] = {
+    "name": "Apple Scab",
+    "crop": "Apple",
+    "symptoms": [
+        "Olive-green to brown velvety spots on leaves and fruit",
+        "Leaves become twisted and distorted",
+        "Premature leaf drop in severe cases",
+        "Dark, scabby lesions on fruit surface"
+    ],
+    "organic_treatments": [
+        "Apply sulfur-based fungicides every 7-10 days during wet weather",
+        "Use neem oil spray (2ml per liter water) as preventive measure",
+        "Remove and destroy fallen leaves in autumn",
+        "Apply compost tea to boost plant immunity"
+    ],
+    "chemical_treatments": [
+        "Captan 50 WP: Apply at 2g per liter water during green tip stage",
+        "Myclobutanil: 1.5ml per liter water, apply every 10-14 days",
+        "Fenbuconazole: Apply at first sign of disease"
+    ],
+    "prevention": [
+        "Plant resistant varieties like 'Liberty', 'Enterprise'",
+        "Prune trees annually for good air circulation",
+        "Clean up and destroy fallen leaves and fruit in autumn",
+        "Apply dormant oil spray in early spring before bud break"
+    ]
+}
+
+remedy_db["Apple___Black_rot"] = {
+    "name": "Black Rot",
+    "crop": "Apple",
+    "symptoms": [
+        "Purple to red spots on leaves that enlarge to brown",
+        "Frogeye leaf spots with purple margins",
+        "Brown, firm rot on fruit that turns black",
+        "Mummified fruit that remains on tree"
+    ],
+    "organic_treatments": [
+        "Apply copper fungicides early in growing season",
+        "Remove and destroy infected fruit and branches",
+        "Prune out cankers during dormant season",
+        "Apply compost tea to strengthen tree immunity"
+    ],
+    "chemical_treatments": [
+        "Captan: 2g per liter water, apply every 10-14 days",
+        "Thiophanate-methyl: 1g per liter water",
+        "Pyraclostrobin: Apply at 7-14 day intervals"
+    ],
+    "prevention": [
+        "Remove mummified fruit from tree and ground",
+        "Prune out infected branches 6-8 inches below canker",
+        "Maintain tree vigor with proper fertilization",
+        "Avoid wounding trees during maintenance"
+    ]
+}
+
+remedy_db["Apple___Cedar_apple_rust"] = {
+    "name": "Cedar Apple Rust",
+    "crop": "Apple",
+    "symptoms": [
+        "Bright orange-yellow spots on upper leaf surface",
+        "Small black dots within orange spots",
+        "Tubular structures on underside of leaves",
+        "Yellow-orange lesions on fruit"
+    ],
+    "organic_treatments": [
+        "Apply sulfur sprays at 7-10 day intervals during wet periods",
+        "Remove eastern red cedar trees within 1-2 miles if possible",
+        "Prune galls from cedar trees in late winter",
+        "Apply neem oil as preventive spray"
+    ],
+    "chemical_treatments": [
+        "Myclobutanil: 1.5ml per liter water, apply at pink bud stage",
+        "Fenbuconazole: Apply at 7-14 day intervals",
+        "Propiconazole: Apply at first sign of infection"
+    ],
+    "prevention": [
+        "Plant resistant apple varieties",
+        "Remove juniper and cedar trees within 1-2 mile radius",
+        "Apply fungicides from pink bud through petal fall",
+        "Prune for good air circulation"
+    ]
+}
+
+remedy_db["Apple___healthy"] = {
+    "name": "Healthy Apple Tree",
+    "crop": "Apple",
+    "symptoms": [
+        "No disease symptoms present",
+        "Healthy, vibrant green leaves with no spots or discoloration",
+        "Smooth, unblemished fruit surface",
+        "Normal growth and development"
+    ],
+    "organic_treatments": [
+        "Continue regular compost applications in spring and fall",
+        "Apply compost tea monthly during growing season",
+        "Maintain mulch layer around base to retain moisture",
+        "Use neem oil spray as preventive measure every 2 weeks"
+    ],
+    "chemical_treatments": [
+        "No chemical treatment needed for healthy plants",
+        "Continue with regular fertilization program",
+        "Apply dormant oil in early spring if desired"
+    ],
+    "prevention": [
+        "Prune annually during dormant season",
+        "Maintain 15-20 feet spacing between trees",
+        "Water deeply at base of tree, avoid overhead irrigation",
+        "Apply balanced fertilizer in early spring",
+        "Monitor weekly for early signs of disease"
+    ]
+}
+
+# Blueberry
+remedy_db["Blueberry___healthy"] = {
+    "name": "Healthy Blueberry",
+    "crop": "Blueberry",
+    "symptoms": [
+        "No disease symptoms present",
+        "Healthy green to blue-green leaves",
+        "Vigorous cane growth",
+        "Abundant, healthy fruit production"
+    ],
+    "organic_treatments": [
+        "Apply composted pine bark mulch annually",
+        "Use fish emulsion fertilizer in spring",
+        "Apply compost tea monthly during growing season",
+        "Maintain acidic soil pH (4.5-5.2) with sulfur"
+    ],
+    "chemical_treatments": [
+        "No chemical treatment needed",
+        "Continue with acidifying fertilizer if needed"
+    ],
+    "prevention": [
+        "Maintain soil pH between 4.5 and 5.2",
+        "Provide full sun exposure",
+        "Water deeply with drip irrigation",
+        "Mulch with pine bark or pine needles",
+        "Prune out old canes in late winter"
+    ]
+}
+
+# Cherry diseases
+remedy_db["Cherry_(including_sour)___healthy"] = {
+    "name": "Healthy Cherry",
+    "crop": "Cherry",
+    "symptoms": [
+        "No disease symptoms present",
+        "Healthy, glossy green leaves",
+        "Strong branch structure",
+        "Abundant, sweet fruit production"
+    ],
+    "organic_treatments": [
+        "Apply compost in early spring",
+        "Use fish emulsion fertilizer monthly",
+        "Mulch with organic material",
+        "Apply seaweed extract for stress resistance"
+    ],
+    "chemical_treatments": [
+        "No chemical treatment needed",
+        "Apply balanced fertilizer in early spring if needed"
+    ],
+    "prevention": [
+        "Prune in late summer to prevent silver leaf disease",
+        "Maintain good air circulation",
+        "Water at base, avoid wetting foliage",
+        "Apply mulch to retain moisture",
+        "Remove fallen fruit and leaves"
+    ]
+}
+
+remedy_db["Cherry_(including_sour)___Powdery_mildew"] = {
+    "name": "Powdery Mildew",
+    "crop": "Cherry",
+    "symptoms": [
+        "White, powdery fungal growth on leaves and shoots",
+        "Curled and distorted leaves",
+        "Stunted growth of young shoots",
+        "Premature leaf drop"
+    ],
+    "organic_treatments": [
+        "Apply baking soda spray (1 tbsp per gallon water + 1 tsp soap) weekly",
+        "Use neem oil (2ml per liter) every 7-10 days",
+        "Milk spray (1 part milk to 9 parts water) as preventive",
+        "Apply sulfur dust when temperatures are below 85°F"
+    ],
+    "chemical_treatments": [
+        "Myclobutanil: 1.5ml per liter water, apply at first sign",
+        "Sulfur: Apply when temperatures below 85°F",
+        "Tebuconazole: Apply at 7-14 day intervals"
+    ],
+    "prevention": [
+        "Plant resistant varieties when available",
+        "Ensure good air circulation through pruning",
+        "Avoid overhead watering, water at base",
+        "Plant in full sun locations",
+        "Remove and destroy infected plant debris"
+    ]
+}
+
+# Corn diseases
+remedy_db["Corn_(maize)___healthy"] = {
+    "name": "Healthy Corn",
+    "crop": "Corn",
+    "symptoms": [
+        "No disease symptoms present",
+        "Dark green, healthy leaves",
+        "Vigorous stalk growth",
+        "Full ear development"
+    ],
+    "organic_treatments": [
+        "Apply compost or aged manure before planting",
+        "Use fish emulsion fertilizer at knee-high stage",
+        "Side-dress with compost tea during growth",
+        "Apply seaweed extract for micronutrients"
+    ],
+    "chemical_treatments": [
+        "No chemical treatment needed",
+        "Apply balanced fertilizer according to soil test"
+    ],
+    "prevention": [
+        "Plant disease-resistant hybrids",
+        "Practice 2-3 year crop rotation",
+        "Test soil before planting",
+        "Maintain proper plant spacing",
+        "Irrigate at base, avoid overhead watering"
+    ]
+}
+
+remedy_db["Corn_(maize)___Common_rust_"] = {
+    "name": "Common Rust",
+    "crop": "Corn",
+    "symptoms": [
+        "Small, oval reddish-brown pustules on leaves",
+        "Pustules turn dark brown to black as they mature",
+        "Yellowing of leaf tissue around pustules",
+        "Reduced photosynthetic area"
+    ],
+    "organic_treatments": [
+        "Apply sulfur dust at 7-10 day intervals",
+        "Use neem oil as preventive spray",
+        "Plant resistant varieties when available",
+        "Apply compost tea to boost immunity"
+    ],
+    "chemical_treatments": [
+        "Azoxystrobin: Apply at first sign of rust",
+        "Pyraclostrobin: Use as protective spray",
+        "Propiconazole: Apply at 7-14 day intervals",
+        "Mancozeb: 2g per liter water for prevention"
+    ],
+    "prevention": [
+        "Plant resistant hybrids with rust resistance genes",
+        "Plant early to avoid peak rust periods",
+        "Maintain proper plant spacing for air circulation",
+        "Avoid excess nitrogen fertilization",
+        "Rotate with non-host crops"
+    ]
+}
+
+remedy_db["Corn_(maize)___Northern_Leaf_Blight"] = {
+    "name": "Northern Leaf Blight",
+    "crop": "Corn",
+    "symptoms": [
+        "Long, cigar-shaped gray-green lesions on leaves",
+        "Lesions turn tan to gray with dark borders",
+        "Premature defoliation from bottom up",
+        "Reduced photosynthesis and yield"
+    ],
+    "organic_treatments": [
+        "Apply copper fungicides at early signs",
+        "Remove and destroy infected crop residue",
+        "Practice 2-3 year crop rotation",
+        "Apply compost tea to boost resistance"
+    ],
+    "chemical_treatments": [
+        "Azoxystrobin: Apply at first sign of lesions",
+        "Pyraclostrobin: Use at 7-14 day intervals",
+        "Trifloxystrobin: Apply as protective spray",
+        "Mancozeb: 2.5g per liter water for prevention"
+    ],
+    "prevention": [
+        "Plant resistant hybrids with Ht genes",
+        "Practice crop rotation with non-grass crops",
+        "Tillage to bury infected residue",
+        "Maintain proper plant spacing",
+        "Avoid excess nitrogen fertilization"
+    ]
+}
+
+remedy_db["Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot"] = {
+    "name": "Gray Leaf Spot",
+    "crop": "Corn",
+    "symptoms": [
+        "Small, rectangular to oval gray spots on leaves",
+        "Spots have brown borders",
+        "Lesions run parallel to leaf veins",
+        "Leaf blighting from bottom upward"
+    ],
+    "organic_treatments": [
+        "Apply copper fungicides at first sign",
+        "Rotate with non-host crops for 2-3 years",
+        "Remove and destroy infected crop residue",
+        "Use compost tea to strengthen plants"
+    ],
+    "chemical_treatments": [
+        "Azoxystrobin: Apply at 7-14 day intervals",
+        "Pyraclostrobin: Use at first sign",
+        "Propiconazole: Apply when lesions appear",
+        "Mancozeb: 2g per liter water"
+    ],
+    "prevention": [
+        "Plant resistant corn hybrids",
+        "Practice 2-3 year crop rotation",
+        "Tillage to bury crop residue",
+        "Maintain proper plant spacing",
+        "Avoid overhead irrigation"
+    ]
+}
+
+# Grape diseases
+remedy_db["Grape___healthy"] = {
+    "name": "Healthy Grape",
+    "crop": "Grape",
+    "symptoms": [
+        "No disease symptoms present",
+        "Healthy green leaves with good texture",
+        "Vigorous vine growth",
+        "Good fruit set and development"
+    ],
+    "organic_treatments": [
+        "Apply compost in spring",
+        "Use fish emulsion fertilizer monthly",
+        "Mulch with organic material",
+        "Apply seaweed extract for stress tolerance"
+    ],
+    "chemical_treatments": [
+        "No chemical treatment needed",
+        "Apply balanced fertilizer according to soil test"
+    ],
+    "prevention": [
+        "Prune annually during dormant season",
+        "Maintain good air circulation through training",
+        "Water at base, avoid wetting foliage",
+        "Apply mulch to retain moisture",
+        "Remove fallen leaves and fruit"
+    ]
+}
+
+remedy_db["Grape___Black_rot"] = {
+    "name": "Black Rot",
+    "crop": "Grape",
+    "symptoms": [
+        "Small, circular brown spots on leaves",
+        "Spots develop dark borders and black centers",
+        "Black, shriveled, mummified berries",
+        "Dark cankers on stems and tendrils"
+    ],
+    "organic_treatments": [
+        "Apply copper fungicides at bud break",
+        "Sulfur sprays every 7-10 days during wet periods",
+        "Remove and destroy mummified berries",
+        "Prune infected canes during dormant season"
+    ],
+    "chemical_treatments": [
+        "Myclobutanil: Apply at 1-2 inch shoot growth",
+        "Tebuconazole: Use at 7-14 day intervals",
+        "Captan: 2g per liter water, apply before bloom",
+        "Azoxystrobin: Apply as protective spray"
+    ],
+    "prevention": [
+        "Prune for good air circulation",
+        "Remove and destroy mummified berries",
+        "Maintain clean vineyard floor",
+        "Apply dormant sprays in early spring",
+        "Select resistant varieties when available"
+    ]
+}
+
+remedy_db["Grape___Esca_(Black_Measles)"] = {
+    "name": "Esca (Black Measles)",
+    "crop": "Grape",
+    "symptoms": [
+        "Tiger-stripe patterns on leaves (dark green between veins)",
+        "Black spots and measles on fruit",
+        "White rot and decay in trunk and arms",
+        "Sudden wilting and death of shoots"
+    ],
+    "organic_treatments": [
+        "Remove infected vines completely",
+        "Use healthy, certified planting material",
+        "Apply Trichoderma beneficial fungi",
+        "Prune during dry weather only"
+    ],
+    "chemical_treatments": [
+        "No effective chemical cure - prevention only",
+        "Sodium arsenite: Restricted use, consult extension",
+        "Apply trunk injection of fungicides in severe cases"
+    ],
+    "prevention": [
+        "Use disease-free nursery stock",
+        "Avoid planting in areas with history of disease",
+        "Protect vines from mechanical damage",
+        "Prune during dry conditions",
+        "Remove and burn infected vines"
+    ]
+}
+
+remedy_db["Grape___Leaf_blight_(Isariopsis_Leaf_Spot)"] = {
+    "name": "Leaf Blight",
+    "crop": "Grape",
+    "symptoms": [
+        "Brown necrotic spots on leaves",
+        "Spots enlarge and coalesce",
+        "Leaf margins die back",
+        "Premature defoliation from bottom up"
+    ],
+    "organic_treatments": [
+        "Apply copper sprays at 10-14 day intervals",
+        "Use sulfur applications during dry weather",
+        "Remove and destroy infected leaves",
+        "Apply compost tea to boost immunity"
+    ],
+    "chemical_treatments": [
+        "Mancozeb: 2g per liter water at first sign",
+        "Azoxystrobin: Apply as protective spray",
+        "Pyraclostrobin: Use at 7-14 day intervals",
+        "Chlorothalonil: 2ml per liter water"
+    ],
+    "prevention": [
+        "Prune to improve air circulation",
+        "Avoid overhead irrigation",
+        "Remove and destroy fallen leaves",
+        "Maintain proper vine spacing",
+        "Train vines on trellis for air flow"
+    ]
+}
+
+# Orange (Citrus Greening)
+remedy_db["Orange___Haunglongbing_(Citrus_greening)"] = {
+    "name": "Citrus Greening (Huanglongbing)",
+    "crop": "Orange",
+    "symptoms": [
+        "Yellow shoots that stand out in canopy",
+        "Mottled, blotchy leaves with yellowing",
+        "Small, lopsided, bitter fruit",
+        "Premature fruit drop",
+        "Stunted tree growth"
+    ],
+    "organic_treatments": [
+        "Remove and destroy infected trees immediately",
+        "Control Asian citrus psyllid with neem oil",
+        "Use reflective mulch to repel psyllids",
+        "Apply kaolin clay to deter insects",
+        "Maintain tree vigor with organic fertilizers"
+    ],
+    "chemical_treatments": [
+        "No cure - infected trees must be removed",
+        "Imidacloprid for psyllid control",
+        "Cyantraniliprole for vector management",
+        "Spinosad for organic psyllid control"
+    ],
+    "prevention": [
+        "Use certified disease-free nursery stock",
+        "Monitor regularly for Asian citrus psyllid",
+        "Remove infected trees immediately",
+        "Control psyllids with insecticides",
+        "Plant resistant varieties when available"
+    ]
+}
+
+# Peach diseases
+remedy_db["Peach___Bacterial_spot"] = {
+    "name": "Bacterial Spot",
+    "crop": "Peach",
+    "symptoms": [
+        "Water-soaked spots on leaves that turn purple",
+        "Spots dry and fall out leaving shot-holes",
+        "Small, dark, sunken spots on fruit",
+        "Premature leaf drop"
+    ],
+    "organic_treatments": [
+        "Apply copper bactericides at leaf fall",
+        "Use Bacillus subtilis as biological control",
+        "Remove infected twigs and branches",
+        "Prune for better air circulation"
+    ],
+    "chemical_treatments": [
+        "Copper hydroxide: 2g per liter water, apply at dormant stage",
+        "Oxytetracycline: Apply during bloom",
+        "Streptomycin: Use for blossom sprays",
+        "Mancozeb: 2g per liter water for leaf protection"
+    ],
+    "prevention": [
+        "Plant resistant varieties when available",
+        "Avoid overhead irrigation",
+        "Prune to improve air circulation",
+        "Apply dormant copper sprays in winter",
+        "Remove and destroy infected plant parts"
+    ]
+}
+
+remedy_db["Peach___healthy"] = {
+    "name": "Healthy Peach",
+    "crop": "Peach",
+    "symptoms": [
+        "No disease symptoms present",
+        "Healthy green leaves with no spots",
+        "Vigorous branch growth",
+        "Good fruit development and size"
+    ],
+    "organic_treatments": [
+        "Apply compost in early spring",
+        "Use fish emulsion fertilizer monthly",
+        "Mulch with organic material",
+        "Apply seaweed extract for stress resistance"
+    ],
+    "chemical_treatments": [
+        "No chemical treatment needed",
+        "Apply balanced fertilizer according to soil test"
+    ],
+    "prevention": [
+        "Prune annually to maintain shape",
+        "Maintain good air circulation",
+        "Water at base, avoid wetting foliage",
+        "Apply mulch to retain moisture",
+        "Remove fallen fruit and leaves"
+    ]
+}
+
+# Bell Pepper diseases
+remedy_db["Pepper,_bell___Bacterial_spot"] = {
+    "name": "Bacterial Spot",
+    "crop": "Bell Pepper",
+    "symptoms": [
+        "Small, dark, water-soaked spots on leaves",
+        "Spots have yellow halos",
+        "Leaf spots become raised and scabby",
+        "Spots on fruit are raised and corky"
+    ],
+    "organic_treatments": [
+        "Apply copper bactericides every 7-10 days",
+        "Use Bacillus subtilis as biological control",
+        "Remove and destroy infected plants",
+        "Apply compost tea to boost immunity"
+    ],
+    "chemical_treatments": [
+        "Copper hydroxide: 2g per liter water",
+        "Streptomycin: Apply at first sign",
+        "Mancozeb: 2g per liter water for leaf protection"
+    ],
+    "prevention": [
+        "Use disease-free certified seed",
+        "Practice 3-year crop rotation",
+        "Avoid overhead irrigation",
+        "Maintain proper plant spacing",
+        "Remove crop residue after harvest"
+    ]
+}
+
+remedy_db["Pepper,_bell___healthy"] = {
+    "name": "Healthy Bell Pepper",
+    "crop": "Bell Pepper",
+    "symptoms": [
+        "No disease symptoms present",
+        "Dark green, healthy leaves",
+        "Strong stem growth",
+        "Abundant fruit production"
+    ],
+    "organic_treatments": [
+        "Apply compost before planting",
+        "Use fish emulsion fertilizer every 2 weeks",
+        "Mulch to retain moisture",
+        "Apply compost tea as foliar spray"
+    ],
+    "chemical_treatments": [
+        "No chemical treatment needed",
+        "Apply balanced fertilizer if needed"
+    ],
+    "prevention": [
+        "Plant in well-drained soil",
+        "Provide full sun exposure",
+        "Space plants 18-24 inches apart",
+        "Water at base, avoid wetting leaves",
+        "Rotate crops annually"
+    ]
+}
+
+# Potato diseases
+remedy_db["Potato___Early_blight"] = {
+    "name": "Early Blight",
+    "crop": "Potato",
+    "symptoms": [
+        "Dark brown spots with concentric rings (target spots)",
+        "Yellowing of older leaves first",
+        "Premature defoliation from bottom up",
+        "Dark lesions on stems"
+    ],
+    "organic_treatments": [
+        "Apply copper fungicides at first sign",
+        "Use baking soda spray (1 tbsp per gallon) weekly",
+        "Apply neem oil (2ml per liter) every 7-10 days",
+        "Remove and destroy infected lower leaves"
+    ],
+    "chemical_treatments": [
+        "Chlorothalonil: 2ml per liter water, apply every 7-10 days",
+        "Mancozeb: 2g per liter water",
+        "Azoxystrobin: Apply preventatively",
+        "Pyraclostrobin: Use at 7-14 day intervals"
+    ],
+    "prevention": [
+        "Use certified disease-free seed potatoes",
+        "Practice 3-4 year crop rotation",
+        "Space plants 12-15 inches apart",
+        "Hill soil around plants to prevent tuber exposure",
+        "Avoid overhead irrigation"
+    ]
+}
+
+remedy_db["Potato___Late_blight"] = {
+    "name": "Late Blight",
+    "crop": "Potato",
+    "symptoms": [
+        "Water-soaked spots on leaves that turn dark brown",
+        "White, fuzzy mold on leaf undersides in humid conditions",
+        "Spots enlarge rapidly and kill leaves",
+        "Dark, shrunken lesions on stems",
+        "Brown, dry rot on tubers"
+    ],
+    "organic_treatments": [
+        "Apply copper fungicides at first sign",
+        "Remove and destroy infected plants immediately",
+        "Improve drainage and air circulation",
+        "Use resistant varieties when available"
+    ],
+    "chemical_treatments": [
+        "Metalaxyl: Apply at first sign of disease",
+        "Mancozeb: 2.5g per liter water as protectant",
+        "Chlorothalonil: 2ml per liter water",
+        "Cymoxanil: Use for curative action"
+    ],
+    "prevention": [
+        "Use certified disease-free seed potatoes",
+        "Plant resistant varieties",
+        "Practice 3-4 year crop rotation",
+        "Avoid overhead irrigation",
+        "Destroy crop debris and volunteer potatoes",
+        "Monitor fields daily during humid weather"
+    ]
+}
+
+remedy_db["Potato___healthy"] = {
+    "name": "Healthy Potato",
+    "crop": "Potato",
+    "symptoms": [
+        "No disease symptoms present",
+        "Dark green, healthy foliage",
+        "Vigorous vine growth",
+        "Good tuber development"
+    ],
+    "organic_treatments": [
+        "Apply compost before planting",
+        "Use fish emulsion at planting and hilling",
+        "Mulch to retain moisture",
+        "Apply seaweed extract for vigor"
+    ],
+    "chemical_treatments": [
+        "No chemical treatment needed",
+        "Apply balanced fertilizer according to soil test"
+    ],
+    "prevention": [
+        "Use certified seed potatoes",
+        "Plant in well-drained soil",
+        "Practice 3-4 year crop rotation",
+        "Hill soil around plants regularly",
+        "Avoid overhead irrigation"
+    ]
+}
+
+# Tomato diseases
+remedy_db["Tomato___Early_blight"] = {
+    "name": "Early Blight",
+    "crop": "Tomato",
+    "symptoms": [
+        "Dark brown spots with concentric rings (target spots)",
+        "Yellowing of lower leaves first",
+        "Premature defoliation from bottom up",
+        "Dark lesions on stems",
+        "Fruit rot near stem end"
+    ],
+    "organic_treatments": [
+        "Apply copper fungicides at first sign",
+        "Use baking soda spray (1 tbsp per gallon) weekly",
+        "Apply neem oil (2ml per liter) every 7-10 days",
+        "Remove and destroy infected lower leaves",
+        "Apply compost tea to boost resistance"
+    ],
+    "chemical_treatments": [
+        "Chlorothalonil: 2ml per liter water, apply every 7-10 days",
+        "Mancozeb: 2g per liter water",
+        "Azoxystrobin: Apply preventatively",
+        "Pyraclostrobin: Use at 7-14 day intervals"
+    ],
+    "prevention": [
+        "Use certified disease-free seed",
+        "Practice 3-4 year crop rotation",
+        "Space plants 18-24 inches apart",
+        "Mulch to prevent soil splash",
+        "Water at base, avoid wetting leaves",
+        "Remove lower leaves as plant grows"
+    ]
+}
+
+remedy_db["Tomato___Late_blight"] = {
+    "name": "Late Blight",
+    "crop": "Tomato",
+    "symptoms": [
+        "Water-soaked spots on leaves that turn dark brown",
+        "White, fuzzy mold on leaf undersides in humid conditions",
+        "Spots enlarge rapidly and kill leaves",
+        "Dark, greasy lesions on stems",
+        "Brown, firm rot on fruit"
+    ],
+    "organic_treatments": [
+        "Apply copper fungicides at first sign",
+        "Remove and destroy infected plants immediately",
+        "Improve drainage and air circulation",
+        "Use resistant varieties when available"
+    ],
+    "chemical_treatments": [
+        "Chlorothalonil: 2ml per liter water as protectant",
+        "Mancozeb: 2.5g per liter water",
+        "Metalaxyl: Apply at first sign of disease",
+        "Cymoxanil: Use for curative action"
+    ],
+    "prevention": [
+        "Use certified disease-free seed",
+        "Plant resistant varieties",
+        "Practice 3-4 year crop rotation",
+        "Avoid overhead irrigation",
+        "Destroy crop debris and volunteer plants",
+        "Apply fungicides preventatively"
+    ]
+}
+
+remedy_db["Tomato___healthy"] = {
+    "name": "Healthy Tomato",
+    "crop": "Tomato",
+    "symptoms": [
+        "No disease symptoms present",
+        "Dark green, healthy leaves",
+        "Vigorous vine growth",
+        "Good fruit set and development"
+    ],
+    "organic_treatments": [
+        "Apply compost before planting",
+        "Use fish emulsion fertilizer every 2 weeks",
+        "Mulch to retain moisture",
+        "Apply compost tea as foliar spray",
+        "Use seaweed extract for stress tolerance"
+    ],
+    "chemical_treatments": [
+        "No chemical treatment needed",
+        "Apply balanced fertilizer according to soil test"
+    ],
+    "prevention": [
+        "Plant in well-drained soil",
+        "Provide full sun",
+        "Space plants 18-24 inches apart",
+        "Water at base, avoid wetting leaves",
+        "Apply mulch to prevent soil splash",
+        "Stake or cage for support",
+        "Rotate crops annually"
+    ]
+}
+
+remedy_db["Tomato___Bacterial_spot"] = {
+    "name": "Bacterial Spot",
+    "crop": "Tomato",
+    "symptoms": [
+        "Small, dark, water-soaked spots on leaves",
+        "Spots have yellow halos",
+        "Leaf spots become raised and scabby",
+        "Dark, scabby lesions on fruit"
+    ],
+    "organic_treatments": [
+        "Apply copper bactericides every 7-10 days",
+        "Use Bacillus subtilis as biological control",
+        "Remove and destroy infected plants",
+        "Apply compost tea to boost immunity"
+    ],
+    "chemical_treatments": [
+        "Copper hydroxide: 2g per liter water",
+        "Streptomycin: Apply at first sign",
+        "Mancozeb: 2g per liter water for leaf protection"
+    ],
+    "prevention": [
+        "Use disease-free certified seed",
+        "Practice 3-year crop rotation",
+        "Avoid overhead irrigation",
+        "Maintain proper plant spacing",
+        "Remove crop residue after harvest"
+    ]
+}
+
+remedy_db["Tomato___Leaf_Mold"] = {
+    "name": "Leaf Mold",
+    "crop": "Tomato",
+    "symptoms": [
+        "Yellow spots on upper leaf surfaces",
+        "Purple to olive-green mold on leaf undersides",
+        "Leaf curling and distortion",
+        "Premature defoliation"
+    ],
+    "organic_treatments": [
+        "Improve ventilation and reduce humidity",
+        "Remove infected leaves promptly",
+        "Water early morning only",
+        "Apply compost tea for plant health"
+    ],
+    "chemical_treatments": [
+        "Chlorothalonil: 2ml per liter water",
+        "Copper fungicides: Apply at first sign",
+        "Mancozeb: 2g per liter water"
+    ],
+    "prevention": [
+        "Provide good air circulation",
+        "Space plants 18-24 inches apart",
+        "Avoid overhead watering",
+        "Prune lower leaves for airflow",
+        "Use drip irrigation"
+    ]
+}
+
+remedy_db["Tomato___Septoria_leaf_spot"] = {
+    "name": "Septoria Leaf Spot",
+    "crop": "Tomato",
+    "symptoms": [
+        "Small, circular spots with dark borders",
+        "Spots have gray to tan centers",
+        "Yellow halos around spots",
+        "Premature defoliation from bottom up"
+    ],
+    "organic_treatments": [
+        "Apply copper fungicides at first sign",
+        "Remove and destroy infected leaves",
+        "Mulch to prevent soil splash",
+        "Apply compost tea for plant health"
+    ],
+    "chemical_treatments": [
+        "Chlorothalonil: 2ml per liter water, apply every 7-10 days",
+        "Mancozeb: 2g per liter water",
+        "Azoxystrobin: Apply preventatively"
+    ],
+    "prevention": [
+        "Practice 3-4 year crop rotation",
+        "Space plants for good air circulation",
+        "Water at base, avoid wetting leaves",
+        "Mulch to prevent soil splash",
+        "Remove lower leaves as plant grows"
+    ]
+}
+
+remedy_db["Tomato___Spider_mites Two-spotted_spider_mite"] = {
+    "name": "Spider Mites",
+    "crop": "Tomato",
+    "symptoms": [
+        "Tiny yellow or white speckles on leaves",
+        "Fine webbing on leaf undersides",
+        "Leaves turn bronze or yellow",
+        "Leaf drop in severe cases"
+    ],
+    "organic_treatments": [
+        "Apply neem oil (2ml per liter) every 5-7 days",
+        "Use insecticidal soap spray",
+        "Introduce predatory mites",
+        "Spray with water to dislodge mites"
+    ],
+    "chemical_treatments": [
+        "Abamectin: Apply at first sign of mites",
+        "Bifenthrin: Use as contact spray",
+        "Spiromesifen: Apply as ovicide"
+    ],
+    "prevention": [
+        "Maintain high humidity around plants",
+        "Water regularly to prevent plant stress",
+        "Avoid excessive nitrogen fertilization",
+        "Remove infested leaves promptly",
+        "Monitor plants regularly with magnifying glass"
+    ]
+}
+
+remedy_db["Tomato___Target_Spot"] = {
+    "name": "Target Spot",
+    "crop": "Tomato",
+    "symptoms": [
+        "Brown circular spots with concentric rings",
+        "Spots have dark borders",
+        "Spots enlarge and coalesce",
+        "Leaf blighting",
+        "Defoliation from bottom up"
+    ],
+    "organic_treatments": [
+        "Apply copper fungicides at first sign",
+        "Remove and destroy infected leaves",
+        "Improve air circulation",
+        "Apply compost tea for plant health"
+    ],
+    "chemical_treatments": [
+        "Chlorothalonil: 2ml per liter water, apply every 7-10 days",
+        "Mancozeb: 2g per liter water",
+        "Azoxystrobin: Apply preventatively"
+    ],
+    "prevention": [
+        "Practice 3-4 year crop rotation",
+        "Space plants for good air circulation",
+        "Avoid overhead irrigation",
+        "Mulch to prevent soil splash",
+        "Remove lower leaves as plant grows"
+    ]
+}
+
+remedy_db["Tomato___Tomato_mosaic_virus"] = {
+    "name": "Tomato Mosaic Virus",
+    "crop": "Tomato",
+    "symptoms": [
+        "Mottled, light and dark green patches on leaves",
+        "Leaves become distorted and fern-like",
+        "Stunted plant growth",
+        "Reduced fruit set",
+        "Yellow mottling on fruit"
+    ],
+    "organic_treatments": [
+        "Remove and destroy infected plants immediately",
+        "Sterilize tools with bleach solution (10%)",
+        "Wash hands thoroughly before handling plants",
+        "Control aphids and whiteflies"
+    ],
+    "chemical_treatments": [
+        "No cure for infected plants - remove them",
+        "Use virus-free seed",
+        "Apply insecticides to control vectors"
+    ],
+    "prevention": [
+        "Use certified virus-free seed",
+        "Wash hands before handling plants",
+        "Sterilize tools between plants",
+        "Control aphid populations",
+        "Remove infected plants immediately",
+        "Use resistant varieties"
+    ]
+}
+
+remedy_db["Tomato___Tomato_Yellow_Leaf_Curl_Virus"] = {
+    "name": "Tomato Yellow Leaf Curl Virus",
+    "crop": "Tomato",
+    "symptoms": [
+        "Yellowing of leaf edges",
+        "Upward curling of leaves",
+        "Stunted plant growth",
+        "Reduced fruit set",
+        "Leaves become thick and leathery"
+    ],
+    "organic_treatments": [
+        "Remove and destroy infected plants",
+        "Control whitefly populations with neem oil",
+        "Use reflective mulch to repel whiteflies",
+        "Apply yellow sticky traps",
+        "Use row covers for young plants"
+    ],
+    "chemical_treatments": [
+        "No cure - remove infected plants",
+        "Imidacloprid for whitefly control",
+        "Pyriproxyfen for insect growth regulation"
+    ],
+    "prevention": [
+        "Use resistant varieties when available",
+        "Control whitefly populations early",
+        "Use reflective mulch (silver plastic)",
+        "Apply row covers before whitefly infestation",
+        "Remove infected plants immediately",
+        "Avoid planting near infected crops"
+    ]
+}
+
+# Other crops (Healthy only)
+remedy_db["Raspberry___healthy"] = {
+    "name": "Healthy Raspberry",
+    "crop": "Raspberry",
+    "symptoms": ["No disease symptoms present", "Healthy green leaves", "Vigorous cane growth", "Abundant fruit production"],
+    "organic_treatments": ["Apply compost in early spring", "Use fish emulsion fertilizer monthly", "Mulch with organic material", "Apply seaweed extract for stress tolerance"],
+    "chemical_treatments": ["No chemical treatment needed"],
+    "prevention": ["Prune out old canes after fruiting", "Maintain good air circulation", "Water at base", "Apply mulch to retain moisture", "Remove fallen leaves and fruit"]
+}
+
+remedy_db["Soybean___healthy"] = {
+    "name": "Healthy Soybean",
+    "crop": "Soybean",
+    "symptoms": ["No disease symptoms present", "Dark green, healthy leaves", "Vigorous plant growth", "Good pod development"],
+    "organic_treatments": ["Apply compost before planting", "Use fish emulsion fertilizer", "Apply compost tea as foliar spray", "Inoculate with beneficial bacteria"],
+    "chemical_treatments": ["No chemical treatment needed"],
+    "prevention": ["Plant disease-resistant varieties", "Practice 2-3 year crop rotation", "Test soil before planting", "Maintain proper plant spacing", "Irrigate at base"]
+}
+
+remedy_db["Squash___Powdery_mildew"] = {
+    "name": "Powdery Mildew",
+    "crop": "Squash",
+    "symptoms": ["White, powdery spots on leaves", "Spots enlarge to cover entire leaves", "Yellowing and browning of leaves", "Reduced fruit production"],
+    "organic_treatments": ["Apply baking soda spray (1 tbsp per gallon + 1 tsp soap) weekly", "Use milk spray (1 part milk to 9 parts water)", "Apply neem oil every 7-10 days", "Use sulfur dust when temperatures below 85°F"],
+    "chemical_treatments": ["Myclobutanil: 1.5ml per liter water at first sign", "Tebuconazole: Apply at 7-14 day intervals", "Trifloxystrobin: Use as protective spray"],
+    "prevention": ["Plant resistant varieties", "Space plants for good air circulation", "Avoid overhead watering", "Water early morning only", "Remove and destroy infected leaves"]
+}
+
+remedy_db["Strawberry___healthy"] = {
+    "name": "Healthy Strawberry",
+    "crop": "Strawberry",
+    "symptoms": ["No disease symptoms present", "Dark green, healthy leaves", "Vigorous runner production", "Abundant fruit set"],
+    "organic_treatments": ["Apply compost in spring", "Use fish emulsion fertilizer monthly", "Mulch with straw to protect fruit", "Apply compost tea for health"],
+    "chemical_treatments": ["No chemical treatment needed"],
+    "prevention": ["Plant in well-drained soil", "Provide full sun", "Space plants 12-18 inches apart", "Mulch with straw", "Remove runners to focus energy", "Renovate beds after harvest"]
+}
+
+remedy_db["Strawberry___Leaf_scorch"] = {
+    "name": "Leaf Scorch",
+    "crop": "Strawberry",
+    "symptoms": ["Purple to brown spots on leaves", "Spots enlarge and merge", "Leaf margins turn brown and scorched", "Reduced plant vigor"],
+    "organic_treatments": ["Apply copper fungicides at first sign", "Remove and destroy infected leaves", "Improve air circulation", "Apply compost tea for plant health"],
+    "chemical_treatments": ["Captan: 2g per liter water, apply every 7-10 days", "Thiophanate-methyl: Apply at first sign", "Azoxystrobin: Use as protective spray"],
+    "prevention": ["Use disease-free plants", "Space plants for good air circulation", "Avoid overhead irrigation", "Mulch to prevent soil splash", "Remove and destroy infected leaves"]
+}
+
+# Save the file
+with open('remedy_database.json', 'w', encoding='utf-8') as f:
+    json.dump(remedy_db, f, indent=2, ensure_ascii=False)
+
+print(f"✅ Created remedy database with {len(remedy_db)} entries")
+print("\nSample entries:")
+for i, (key, value) in enumerate(list(remedy_db.items())[:10]):
+    print(f"  {key}: {value['name']}")

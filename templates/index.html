@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Smart Farming Assistant{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>Smart Farming Solutions</h1>
+    <p>AI-powered crop disease detection, marketplace, and farming guidance</p>
+    <div class="hero-buttons">
+        {% if not current_user.is_authenticated %}
+            <a href="{{ url_for('register') }}" class="btn-primary btn-large">
+                <i class="fas fa-user-plus"></i> Get Started Free
+            </a>
+            <a href="{{ url_for('login') }}" class="btn-secondary btn-large">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+        {% else %}
+            <a href="{{ url_for('disease_detection') }}" class="btn-primary btn-large">
+                <i class="fas fa-search"></i> Detect Disease
+            </a>
+            <a href="{{ url_for('marketplace') }}" class="btn-secondary btn-large">
+                <i class="fas fa-store"></i> Browse Marketplace
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="features">
+    <h2>Everything You Need for Smart Farming</h2>
+    <div class="feature-grid">
+        <div class="feature-card">
+            <i class="fas fa-robot"></i>
+            <h3>AI Disease Detection</h3>
+            <p>VGG16 model trained on 38 diseases across 14 crops with 95% accuracy</p>
+        </div>
+        <div class="feature-card">
+            <i class="fas fa-seedling"></i>
+            <h3>Smart Crop Guide</h3>
+            <p>Season and soil-based crop recommendations</p>
+        </div>
+        <div class="feature-card">
+            <i class="fas fa-handshake"></i>
+            <h3>Direct Marketplace</h3>
+            <p>Sell crops directly to buyers, no middlemen</p>
+        </div>
+        <div class="feature-card">
+            <i class="fas fa-bell"></i>
+            <h3>Instant Alerts</h3>
+            <p>Notify buyers about crop availability instantly</p>
+        </div>
+    </div>
+</div>
+
+<div class="hero" style="background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%); margin-top: 2rem;">
+    <h2>Supported Crops</h2>
+    <p>Apple, Blueberry, Cherry, Corn, Grape, Orange, Peach, Pepper, Potato, Raspberry, Soybean, Squash, Strawberry, Tomato</p>
+    <div style="margin-top: 1rem;">
+        <span class="btn-secondary">14 Crops</span>
+        <span class="btn-secondary">38 Diseases</span>
+        <span class="btn-secondary">95% Accuracy</span>
+    </div>
+</div>
+{% endblock %}
